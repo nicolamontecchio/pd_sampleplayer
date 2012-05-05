@@ -32,3 +32,15 @@ void sampleplayer_tick(void *o, float** out, int out_channels, int nsamples)
 	sp->tick(out, out_channels, nsamples);
 }
 
+void sampleplayer_voice_on(void* o, int voice, int sample_id, float intensity)
+{
+	SamplePlayer* sp = (SamplePlayer*) o;
+	sp->voice_on(voice, sample_id, intensity); 
+}
+
+void sampleplayer_voice_off(void *o, int voice)
+{
+	SamplePlayer* sp = (SamplePlayer*) o;
+	sp->voice_off(voice);
+}
+
