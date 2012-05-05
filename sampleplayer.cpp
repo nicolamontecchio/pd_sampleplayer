@@ -161,11 +161,13 @@ void SamplePlayer::tick(float** out, int out_channels, int nsamples)
 		if((*it).in_memblock_sample_position >= (*it).in_memblock_sample_endpos)
 			active_voices.erase(it);
 	}
+	//	cout << "active voices: " << active_voices.size() << endl;
 	for(list<Voice>::iterator it = releasing_voices.begin(); it != releasing_voices.end(); it++)
 	{
 		tick_voice(&(*it), out, out_channels, nsamples, true);
-		if((*it).in_memblock_sample_position >= (*it).in_memblock_sample_endpos)
+		if((*it).intensity <= 0.01 || (*it).in_memblock_sample_position >= (*it).in_memblock_sample_endpos)
 			releasing_voices.erase(it);
 	}
+	// cout << "releasing voices: " << releasing_voices.size() << endl;
 }
 
