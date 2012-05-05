@@ -117,36 +117,36 @@ inline float release_multiplier(int frame, int tot_frames)
 	return 1. - ((float) frame) / ((float) tot_frames);
 }
 
-void SamplePlayer::tick_voice(Voice v, float** out, int out_channels, int nsamples, bool releasing)
+void SamplePlayer::tick_voice(Voice *v, float** out, int out_channels, int nsamples, bool releasing)
 {
-	SampleMemoryBlock* mb = v.memoryblock;
-	if(v.sample_channels == out_channels) 		// voice has same number of channels -> just copy
+	SampleMemoryBlock* mb = v->memoryblock;
+	if(v->sample_channels == out_channels) 		// voice has same number of channels -> just copy
 		for(int n = 0; n < nsamples; n++)
 		{
-			if(v.in_memblock_sample_position >= v.in_memblock_sample_endpos)
+			if(v->in_memblock_sample_position >= v->in_memblock_sample_endpos)
 				break;	
-			float rm = (releasing ? release_multiplier(n,v.release_remaining_length) : 1.f);
+			float rm = (releasing ? release_multiplier(n,v->release_remaining_length) : 1.f);
 			for(int c = 0; c < out_channels; c++)
-				out[c][n] += v.intensity * mb->mem[v.in_memblock_sample_position++] * rm;
-			if(v.in_memblock_sample_position >= v.in_memblock_sample_endpos)
+				out[c][n] += v->intensity * mb->mem[v->in_memblock_sample_position++] * rm;
+			if(v->in_memblock_sample_position >= v->in_memblock_sample_endpos)
 				break;
 		}
 	else		                                  // voice has different number of channels -> monoize and copy equally in all channels
 		for(int n = 0; n < nsamples; n++)
 		{
-			if(v.in_memblock_sample_position >= v.in_memblock_sample_endpos)
+			if(v->in_memblock_sample_position >= v->in_memblock_sample_endpos)
 				break;	
 			float o = 0;
-			for(int c = 0; c < v.sample_channels; c++)
-				o += mb->mem[v.in_memblock_sample_position++];
-			o *= (releasing ? release_multiplier(n,v.release_remaining_length) : 1.f);
+			for(int c = 0; c < v->sample_channels; c++)
+				o += mb->mem[v->in_memblock_sample_position++];
+			o *= (releasing ? release_multiplier(n,v->release_remaining_length) : 1.f);
 			for(int c = 0; c < out_channels; c++)
-				out[c][n] += v.intensity / out_channels * o;
+				out[c][n] += v->intensity / out_channels * o;
 		}
 	if(releasing)
 	{
-		v.intensity *= release_multiplier(nsamples, v.release_remaining_length);
-		v.release_remaining_length -= nsamples;
+		v->intensity *= release_multiplier(nsamples, v->release_remaining_length);
+		v->release_remaining_length -= nsamples;
 	}
 }
 
@@ -157,13 +157,13 @@ void SamplePlayer::tick(float** out, int out_channels, int nsamples)
 			out[c][n] = 0.;
 	for(list<Voice>::iterator it = active_voices.begin(); it != active_voices.end(); it++)
 	{
-		tick_voice(*it, out, out_channels, nsamples, false);
+		tick_voice(&(*it), out, out_channels, nsamples, false);
 		if((*it).in_memblock_sample_position >= (*it).in_memblock_sample_endpos)
 			active_voices.erase(it);
 	}
 	for(list<Voice>::iterator it = releasing_voices.begin(); it != releasing_voices.end(); it++)
 	{
-		tick_voice(*it, out, out_channels, nsamples, true);
+		tick_voice(&(*it), out, out_channels, nsamples, true);
 		if((*it).in_memblock_sample_position >= (*it).in_memblock_sample_endpos)
 			releasing_voices.erase(it);
 	}

@@ -48,7 +48,7 @@ class SamplePlayer
 		std::list<Voice> releasing_voices;
 		std::list<SampleMemoryBlock*> memory_blocks;
 		std::map<int, std::pair<SampleMemoryBlock*, int> > sample_to_memblock_and_sampleindex;
-		void tick_voice(Voice v, float** out, int out_channels, int nsamples, bool releasing);
+		void tick_voice(Voice *v, float** out, int out_channels, int nsamples, bool releasing);
 	public:
 		~SamplePlayer();
 		void add_sample(int pitch, std::string file_path, int release) { pitch_2_sample_file_mapping[pitch] = std::pair<std::string, int>(file_path, release);	}
