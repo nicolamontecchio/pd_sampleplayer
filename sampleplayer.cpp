@@ -1,4 +1,5 @@
 #include "sampleplayer.h"
+#include <iostream>
 using namespace std;
 
 int SampleMemoryBlock::get_sample_index(int sampleid)
@@ -39,6 +40,7 @@ list<string> SamplePlayer::initialize()
 		SF_INFO info;
 		int sampleid = (*it).first;
 		string samplepath = (*it).second.first;
+		// cout << "trying to load " << samplepath << endl;
 		int release = (*it).second.second;
 		SNDFILE *sndfile = sf_open(samplepath.c_str(),SFM_READ,&info);
 		if(sndfile == NULL)

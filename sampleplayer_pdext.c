@@ -35,7 +35,7 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
 		t_symbol* sample_path;
 		if(x->initialized)
 		{
-			post("already initialized; cannot add new samples");
+			post("already initialized, cannot add new samples");
 			return;
 		}
 		if(argc != 3)
@@ -49,8 +49,8 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
 			return;
 		}
 		pitch = atom_getint(argv + 0);
-		release_time = atom_getfloat(argv + 1);
-		sample_path = atom_gensym(argv + 1);
+		release_time = atom_getfloat(argv + 1) * sys_getsr();
+		sample_path = atom_gensym(argv + 2);
 		sampleplayer_set_sample(x->sample_player_cpp_obj, pitch, sample_path->s_name, release_time);
 	} 
 	else if(strcmp(s->s_name, "list") == 0) // a (voice/pitch/intensity) triple
@@ -86,17 +86,10 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
 t_int *sampleplayer_tilde_perform(t_int *w)
 {
 	t_sampleplayer_tilde *x = (t_sampleplayer_tilde *)(w[1]);
-	int          n =           (int)(w[3]); // number of samples
-
-
-	/*
-		 t_sample  *in1 =    (t_sample *)(w[2]);
-		 t_sample  *in2 =    (t_sample *)(w[3]);
-		 t_sample  *out =    (t_sample *)(w[4]);
-		 t_sample f_pan = (x->f_pan<0)?0.0:(x->f_pan>1)?1.0:x->f_pan;
-
-		 while (n--) *out++ = (*in1++)*(1-f_pan)+(*in2++)*f_pan;
-	 */
+	int   nsamples =           (int)(w[3]); // number of samples
+	t_sample  *out =    (t_sample *)(w[2]); // output buffer (ONE for now)
+	float* outpointer[1] = {(float*) out};
+	sampleplayer_tick(x->sample_player_cpp_obj, outpointer, 1, nsamples);
 	return (w+4);
 }
 
