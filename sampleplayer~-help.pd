@@ -1,0 +1,14 @@
+#N canvas 253 364 457 265 10;
+#X obj 16 222 sampleplayer~;
+#X msg 16 36 setsample 43 samples/name_43.wav;
+#X text 15 15 assign a sample to a (midi note) number;
+#X msg 28 167 2 56 127;
+#X msg 38 187 2 56 0;
+#X text 93 164 triple (voice/pitch/velocity) -- like output from [poly]
+object -- triggers note play/stop;
+#X msg 27 94 initialize;
+#X text 23 75 load all samples and get sampler ready for action;
+#X connect 1 0 0 0;
+#X connect 3 0 0 0;
+#X connect 4 0 0 0;
+#X connect 6 0 0 0;
