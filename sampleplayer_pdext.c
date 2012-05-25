@@ -1,5 +1,6 @@
 #include "m_pd.h"
 #include <string.h>
+#include <stdio.h>
 #include "sampleplayer_c_interface.h"
 
 static t_class *sampleplayer_tilde_class;
@@ -8,6 +9,7 @@ typedef struct _sampleplayer_tilde {
 	t_object  x_obj;
 	void * sample_player_cpp_obj;
 	int initialized;
+	t_symbol* canvas_dir;
 } t_sampleplayer_tilde;
 
 
@@ -33,6 +35,7 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
 		int pitch;
 		float release_time;
 		t_symbol* sample_path;
+		char full_sample_path[2048];
 		if(x->initialized)
 		{
 			post("already initialized, cannot add new samples");
@@ -51,7 +54,12 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
 		pitch = atom_getint(argv + 0);
 		release_time = atom_getfloat(argv + 1) * sys_getsr();
 		sample_path = atom_gensym(argv + 2);
-		sampleplayer_set_sample(x->sample_player_cpp_obj, pitch, sample_path->s_name, release_time);
+		if(sample_path->s_name[0] == '/' || sample_path->s_name[0] == '\\')
+			strcpy(full_sample_path, sample_path->s_name);
+		else
+			snprintf(full_sample_path, 2048, "%s/%s", x->canvas_dir->s_name, sample_path->s_name);
+		// post("full_sample_path value is: %s", full_sample_path);
+		sampleplayer_set_sample(x->sample_player_cpp_obj, pitch, full_sample_path, release_time);
 	} 
 	else if(strcmp(s->s_name, "list") == 0) // a (voice/pitch/intensity) triple
 	{
@@ -103,6 +111,7 @@ void *sampleplayer_tilde_new(t_floatarg f)
 	t_sampleplayer_tilde *x = (t_sampleplayer_tilde *)pd_new(sampleplayer_tilde_class);
 	x->sample_player_cpp_obj = new_sampleplayer_obj();
 	x->initialized = 0;
+	x->canvas_dir = canvas_getcurrentdir();
 	outlet_new(&x->x_obj, &s_signal);
 	return (void *)x;
 }
