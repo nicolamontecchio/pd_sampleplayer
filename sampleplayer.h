@@ -38,6 +38,8 @@ class Voice
 		int in_memblock_sample_endpos;
 		float intensity;
 		int release_remaining_length;
+		int loop_from;
+		int loop_to;
 };
 
 class SamplePlayer
@@ -51,7 +53,10 @@ class SamplePlayer
 		void tick_voice(Voice *v, float** out, int out_channels, int nsamples, bool releasing);
 	public:
 		~SamplePlayer();
-		void add_sample(int pitch, std::string file_path, int release) { pitch_2_sample_file_mapping[pitch] = std::pair<std::string, int>(file_path, release);	}
+		void add_sample(int pitch, std::string file_path, int release) 
+		{ 
+			pitch_2_sample_file_mapping[pitch] = std::pair<std::string, int>(file_path, release);	
+		}
 		/** load all samples; return a list containing the file paths of those which could not be loaded */
 		std::list<std::string> initialize();
 		/** Voice on. Assumes the particular voice was indeed off before this call. */

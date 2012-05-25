@@ -87,23 +87,20 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
 	}
 }
 
-
-
-
-
 t_int *sampleplayer_tilde_perform(t_int *w)
 {
 	t_sampleplayer_tilde *x = (t_sampleplayer_tilde *)(w[1]);
-	int   nsamples =           (int)(w[3]); // number of samples
-	t_sample  *out =    (t_sample *)(w[2]); // output buffer (ONE for now)
-	float* outpointer[1] = {(float*) out};
-	sampleplayer_tick(x->sample_player_cpp_obj, outpointer, 1, nsamples);
-	return (w+4);
+	int   nsamples =            (int)(w[4]); // number of samples
+	t_sample  *outL =    (t_sample *)(w[2]); // output buffer (ONE for now)
+	t_sample  *outR =    (t_sample *)(w[3]); // output buffer (ONE for now)
+	float* outpointer[2] = {(float*) outL, (float*) outR};
+	sampleplayer_tick(x->sample_player_cpp_obj, outpointer, 2, nsamples);
+	return (w+5);
 }
 
 void sampleplayer_tilde_dsp(t_sampleplayer_tilde *x, t_signal **sp)
 {
-	dsp_add(sampleplayer_tilde_perform, 3, x, sp[0]->s_vec, sp[0]->s_n);
+	dsp_add(sampleplayer_tilde_perform, 4, x, sp[0]->s_vec, sp[1]->s_vec, sp[0]->s_n);
 }
 
 void *sampleplayer_tilde_new(t_floatarg f)
@@ -112,6 +109,7 @@ void *sampleplayer_tilde_new(t_floatarg f)
 	x->sample_player_cpp_obj = new_sampleplayer_obj();
 	x->initialized = 0;
 	x->canvas_dir = canvas_getcurrentdir();
+	outlet_new(&x->x_obj, &s_signal);
 	outlet_new(&x->x_obj, &s_signal);
 	return (void *)x;
 }
