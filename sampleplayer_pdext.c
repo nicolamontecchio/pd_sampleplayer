@@ -114,9 +114,14 @@ void *sampleplayer_tilde_new(t_floatarg f)
 	return (void *)x;
 }
 
+void sampleplayer_tilde_free(t_sampleplayer_tilde *x)
+{
+	free_sampleplayer_obj(x->sample_player_cpp_obj);
+}
+
 void sampleplayer_tilde_setup(void) {
 	sampleplayer_tilde_class = class_new(gensym("sampleplayer~"),
-			(t_newmethod)sampleplayer_tilde_new, 0, 
+			(t_newmethod)sampleplayer_tilde_new, (t_method)sampleplayer_tilde_free, 
 			sizeof(t_sampleplayer_tilde), CLASS_DEFAULT, A_DEFFLOAT, 0);
 	class_addmethod(sampleplayer_tilde_class, (t_method)sampleplayer_tilde_dsp, gensym("dsp"), 0);
 	class_addanything(sampleplayer_tilde_class, (t_method) sampleplayer_control_inlet);
