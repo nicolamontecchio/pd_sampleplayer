@@ -11,7 +11,7 @@ extern "C"
 	void sampleplayer_voice_on(void* o, int voice, int sample_id, float intensity);
 	void sampleplayer_voice_off(void *o, int voice);
 	void sampleplayer_tick(void *o, float** out, int out_channels, int nsamples);
-
+	int sampleplayer_memoryusage(void *o);
 
 #ifdef __cplusplus
 }

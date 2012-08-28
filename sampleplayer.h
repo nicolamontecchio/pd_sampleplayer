@@ -38,8 +38,6 @@ class Voice
 		int in_memblock_sample_endpos;
 		float intensity;
 		int release_remaining_length;
-		int loop_from;
-		int loop_to;
 };
 
 class SamplePlayer
@@ -65,5 +63,7 @@ class SamplePlayer
 		void voice_off(int voice);
 		/** Tick function. */
 		void tick(float** out, int out_channels, int nsamples);
+		/** Return the total memory occupied by the samples, in bytes */
+		int get_sample_memory();
 };
 

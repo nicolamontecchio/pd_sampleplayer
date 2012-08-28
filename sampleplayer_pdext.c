@@ -79,6 +79,11 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
 		else
 			sampleplayer_voice_off(x->sample_player_cpp_obj, voice);
 	} 
+	else if(strcmp(s->s_name, "memoryusage") == 0) // a (voice/pitch/intensity) triple
+	{
+		int memoryusage = sampleplayer_memoryusage(x->sample_player_cpp_obj);
+		post("memory usage is currently %d MB", memoryusage/1024/1024);
+	}
 	else 
 	{
 		post("control inlet used with unknwon message");

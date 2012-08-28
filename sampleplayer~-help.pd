@@ -1,4 +1,4 @@
-#N canvas 362 112 769 290 10;
+#N canvas 328 276 769 290 10;
 #X obj 16 222 sampleplayer~;
 #X text 93 164 triple (voice/pitch/velocity) -- like output from [poly]
 object -- triggers note play/stop;
@@ -10,9 +10,11 @@ object -- triggers note play/stop;
 #X obj 16 254 dac~;
 #X msg 28 167 2 43 127;
 #X msg 38 187 2 43 0;
+#X msg 130 195 memoryusage;
 #X connect 0 0 6 0;
 #X connect 0 1 6 1;
 #X connect 2 0 0 0;
 #X connect 5 0 0 0;
 #X connect 7 0 0 0;
 #X connect 8 0 0 0;
+#X connect 9 0 0 0;

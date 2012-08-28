@@ -44,3 +44,9 @@ void sampleplayer_voice_off(void *o, int voice)
 	sp->voice_off(voice);
 }
 
+int sampleplayer_memoryusage(void *o)
+{
+	SamplePlayer* sp = (SamplePlayer*) o;
+	return sp->get_sample_memory();
+}
+

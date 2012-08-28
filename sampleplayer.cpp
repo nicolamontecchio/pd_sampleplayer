@@ -171,3 +171,11 @@ void SamplePlayer::tick(float** out, int out_channels, int nsamples)
 	// cout << "releasing voices: " << releasing_voices.size() << endl;
 }
 
+int SamplePlayer::get_sample_memory()
+{
+	int memtot = 0;
+	for(list<SampleMemoryBlock*>::iterator it = memory_blocks.begin(); it != memory_blocks.end(); it++)
+		memtot += (*it)->blocksize * sizeof(float);
+	return memtot;
+}
+
