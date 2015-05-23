@@ -11,3 +11,7 @@ sampleplayer_c_interface.o : sampleplayer_c_interface.h sampleplayer_c_interface
 
 pdexternal : sampleplayer.o sampleplayer_pdext.c sampleplayer_c_interface.o
 	cc -O3 -shared -lsndfile -undefined dynamic_lookup -o sampleplayer~.pd_darwin sampleplayer_pdext.c sampleplayer.o sampleplayer_c_interface.o
+
+pdexternal_static : sampleplayer.o sampleplayer_pdext.c sampleplayer_c_interface.o
+	cc -O3 -c -o sampleplayer_pd.o sampleplayer_pdext.c
+	ar -cvq libpdsampleplayer.a *.o
