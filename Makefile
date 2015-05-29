@@ -14,4 +14,3 @@ pdexternal : sampleplayer.o sampleplayer_pdext.c sampleplayer_c_interface.o
 
 pdexternal_static : sampleplayer.o sampleplayer_pdext.c sampleplayer_c_interface.o
 	cc -O3 -c -o sampleplayer_pd.o sampleplayer_pdext.c
-	ar -cvq libpdsampleplayer.a *.o
