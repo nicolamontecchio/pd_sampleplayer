@@ -96,9 +96,9 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
 t_int *sampleplayer_tilde_perform(t_int *w)
 {
   t_sampleplayer_tilde *x = (t_sampleplayer_tilde *)(w[1]);
-  int   nsamples =            (int)(w[4]); // number of samples
-  t_sample  *outL =    (t_sample *)(w[2]); // output buffer (ONE for now)
-  t_sample  *outR =    (t_sample *)(w[3]); // output buffer (ONE for now)
+  t_sample  *outL =    (t_sample *)(w[2]);
+  t_sample  *outR =    (t_sample *)(w[3]);
+  int   nsamples =            (int)(w[4]);
   float* outpointer[2] = {(float*) outL, (float*) outR};
   sampleplayer_tick(x->sample_player_cpp_obj, outpointer, 2, nsamples);
   return (w+5);
@@ -106,10 +106,12 @@ t_int *sampleplayer_tilde_perform(t_int *w)
 
 void sampleplayer_tilde_dsp(t_sampleplayer_tilde *x, t_signal **sp)
 {
+  printf("tilde_dsp begin\n"); fflush(stdout);
   dsp_add(sampleplayer_tilde_perform, 4, x, sp[0]->s_vec, sp[1]->s_vec, sp[0]->s_n);
+  printf("tilde_dsp end\n"); fflush(stdout);
 }
 
-void *sampleplayer_tilde_new(t_floatarg f)
+void *sampleplayer_tilde_new()
 {
   t_sampleplayer_tilde *x = (t_sampleplayer_tilde *)pd_new(sampleplayer_tilde_class);
   x->sample_player_cpp_obj = new_sampleplayer_obj();
@@ -127,8 +129,10 @@ void sampleplayer_tilde_free(t_sampleplayer_tilde *x)
 
 void sampleplayer_tilde_setup(void) {
   sampleplayer_tilde_class = class_new(gensym("sampleplayer~"),
-				       (t_newmethod)sampleplayer_tilde_new, (t_method)sampleplayer_tilde_free,
-				       sizeof(t_sampleplayer_tilde), CLASS_DEFAULT, A_DEFFLOAT, 0);
+				       (t_newmethod)sampleplayer_tilde_new,
+				       (t_method)sampleplayer_tilde_free,
+				       sizeof(t_sampleplayer_tilde),
+				       CLASS_DEFAULT, 0);
   class_addmethod(sampleplayer_tilde_class, (t_method)sampleplayer_tilde_dsp, gensym("dsp"), 0);
   class_addanything(sampleplayer_tilde_class, (t_method) sampleplayer_control_inlet);
 }
