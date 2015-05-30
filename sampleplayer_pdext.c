@@ -133,6 +133,6 @@ void sampleplayer_tilde_setup(void) {
 				       (t_method)sampleplayer_tilde_free,
 				       sizeof(t_sampleplayer_tilde),
 				       CLASS_DEFAULT, 0);
-  class_addmethod(sampleplayer_tilde_class, (t_method)sampleplayer_tilde_dsp, gensym("dsp"), 0);
+  class_addmethod(sampleplayer_tilde_class, (t_method)sampleplayer_tilde_dsp, gensym("dsp"), A_CANT, 0);
   class_addanything(sampleplayer_tilde_class, (t_method) sampleplayer_control_inlet);
 }
