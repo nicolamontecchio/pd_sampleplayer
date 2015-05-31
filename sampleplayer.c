@@ -1,5 +1,5 @@
 // plain C re-implementation
-#include "sampleplayer_c_interface.h"
+#include "sampleplayer.h"
 #include <stdlib.h>
 #include <string.h>
 #include <sndfile.h>

@@ -1,7 +1,7 @@
 #include "m_pd.h"
 #include <string.h>
 #include <stdio.h>
-#include "sampleplayer_c_interface.h"
+#include "sampleplayer.h"
 
 static t_class *sampleplayer_tilde_class;
 
