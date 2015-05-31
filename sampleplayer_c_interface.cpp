@@ -1,4 +1,4 @@
-#include "sampleplayer_c_interface.h"
+// #include "sampleplayer_c_interface.h"
 #include "sampleplayer.h"
 #include <list>
 #include <string>
@@ -35,7 +35,7 @@ void sampleplayer_tick(void *o, float** out, int out_channels, int nsamples)
 void sampleplayer_voice_on(void* o, int voice, int sample_id, float intensity)
 {
 	SamplePlayer* sp = (SamplePlayer*) o;
-	sp->voice_on(voice, sample_id, intensity); 
+	sp->voice_on(voice, sample_id, intensity);
 }
 
 void sampleplayer_voice_off(void *o, int voice)
@@ -49,4 +49,3 @@ int sampleplayer_memoryusage(void *o)
 	SamplePlayer* sp = (SamplePlayer*) o;
 	return sp->get_sample_memory();
 }
-
