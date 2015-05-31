@@ -14,6 +14,7 @@ SamplePlayer * sampleplayer_new(int n_channels)
   sp->n_samples = 0;
   sp->n_channels = n_channels;
   sp->samples = (Sample *) malloc(sizeof(Sample) * N_MAX_SAMPLES);
+  sp->voices = (Voice *) malloc(sizeof(Voice) * N_VOICES);
   return sp;
 }
 
@@ -24,6 +25,7 @@ void sampleplayer_free(SamplePlayer *sp)
     free(sp->samples[n].file_path);
   if(sp->memblock != 0)
     free(sp->memblock);
+  free(sp->voices);
 }
 
 int sampleplayer_add_sample(SamplePlayer *sp, Sample s)
@@ -75,6 +77,7 @@ int sampleplayer_initialize(SamplePlayer *sp)
     return SPLR_ERROR_CANNOT_ALLOCATE_MEMORY;
 
   // copy all samples to mem, storing their position in the mem block
+  memblock_pos = 0;
   for(n = 0; n < sp->n_samples; n++)
   {
     SF_INFO info;
