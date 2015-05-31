@@ -43,7 +43,7 @@ typedef struct
 } SamplePlayer;
 
 
-SamplePlayer sampleplayer_new(int n_channels);
+SamplePlayer * sampleplayer_new(int n_channels);
 void sampleplayer_free(SamplePlayer *sp);
 int sampleplayer_add_sample(SamplePlayer *sp, Sample s);
 int sampleplayer_initialize(SamplePlayer *sp);

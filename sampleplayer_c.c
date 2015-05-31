@@ -7,13 +7,13 @@
 const int N_MAX_SAMPLES = 8192;
 const int N_VOICES = 256;
 
-SamplePlayer sampleplayer_new(int n_channels)
+SamplePlayer * sampleplayer_new(int n_channels)
 {
-  SamplePlayer sp;
-  sp.initialized = 0;
-  sp.n_samples = 0;
-  sp.n_channels = n_channels;
-  sp.samples = (Sample *) malloc(sizeof(Sample) * N_MAX_SAMPLES);
+  SamplePlayer *sp = (SamplePlayer *) malloc(sizeof(SamplePlayer));
+  sp->initialized = 0;
+  sp->n_samples = 0;
+  sp->n_channels = n_channels;
+  sp->samples = (Sample *) malloc(sizeof(Sample) * N_MAX_SAMPLES);
   return sp;
 }
 
@@ -121,41 +121,44 @@ void sampleplayer_voice_off(SamplePlayer *sp, int voice)
   sp->voices[voice].releasing = 1;
 }
 
-inline float release_multiplier(int remaining, int total)
+static inline float release_multiplier(int remaining, int total)
 {
   return remaining > 0 ? ((float) remaining) / ((float) total) : 0;
 }
 
 void sampleplayer_tick(SamplePlayer *sp, float** out, int n_frames)
 {
-  int n;
-  int voice;
-  int channel;
-
-  for(channel = 0; channel < sp->n_channels; channel++)
-    for(n = 0; n < n_frames; n++)
-      out[channel][n] = 0;
-
-  for(voice = 0; voice < N_VOICES; voice++)
+  if(sp->initialized)
   {
-    if(sp->voices[voice].active)
+    int n;
+    int voice;
+    int channel;
+
+    for(channel = 0; channel < sp->n_channels; channel++)
+      for(n = 0; n < n_frames; n++)
+	out[channel][n] = 0;
+
+    for(voice = 0; voice < N_VOICES; voice++)
     {
-      Voice v = sp->voices[voice];
-      // has more remaining samples than n_frames? otherwise set to inactive
-      if(v.sample_mem_position_end - v.sample_mem_position_current < n_frames)
-        v.active = 0;
-      else
+      if(sp->voices[voice].active)
       {
-	for(channel = 0; channel < sp->n_channels; channel++)
-	  for(n = 0; n < n_frames; n++)
-	  {
-	    float w_n = v.intensity * (v.releasing ? release_multiplier(
-					 v.release_remaining_length, v.release_length) : 1);
-	    out[channel][n] += w_n * sp->memblock[v.sample_mem_position_current + n + channel];
-	  }
-	v.sample_mem_position_current += n;
-	if(v.releasing)
-	  v.release_remaining_length -= n_frames;
+	Voice v = sp->voices[voice];
+	// has more remaining samples than n_frames? otherwise set to inactive
+	if(v.sample_mem_position_end - v.sample_mem_position_current < n_frames)
+	  v.active = 0;
+	else
+	{
+	  for(channel = 0; channel < sp->n_channels; channel++)
+	    for(n = 0; n < n_frames; n++)
+	    {
+	      float w_n = v.intensity * (v.releasing ? release_multiplier(
+					   v.release_remaining_length, v.release_length) : 1);
+	      out[channel][n] += w_n * sp->memblock[v.sample_mem_position_current + n + channel];
+	    }
+	  v.sample_mem_position_current += n;
+	  if(v.releasing)
+	    v.release_remaining_length -= n_frames;
+	}
       }
     }
   }
