@@ -1,4 +1,4 @@
-#N canvas 328 276 769 290 10;
+#N canvas 450 389 769 290 10;
 #X obj 16 222 sampleplayer~;
 #X text 93 164 triple (voice/pitch/velocity) -- like output from [poly]
 object -- triggers note play/stop;
@@ -6,15 +6,15 @@ object -- triggers note play/stop;
 #X text 23 75 load all samples and get sampler ready for action;
 #X text 15 15 assign a wavefile to id 43 w/ release of 0.2 seconds
 ;
-#X msg 16 36 setsample 43 0.2 sample_43.wav;
 #X obj 16 254 dac~;
 #X msg 28 167 2 43 127;
 #X msg 38 187 2 43 0;
 #X msg 130 195 memoryusage;
-#X connect 0 0 6 0;
-#X connect 0 1 6 1;
+#X msg 16 36 addsample 43 sample_43.wav;
+#X connect 0 0 5 0;
+#X connect 0 1 5 1;
 #X connect 2 0 0 0;
-#X connect 5 0 0 0;
+#X connect 6 0 0 0;
 #X connect 7 0 0 0;
 #X connect 8 0 0 0;
 #X connect 9 0 0 0;
