@@ -49,13 +49,14 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
       return;
     }
     pitch = atom_getint(argv + 0);
-    sample_path = atom_gensym(argv + 2);
+    sample_path = atom_gensym(argv + 1);
     if(sample_path->s_name[0] == '/' || sample_path->s_name[0] == '\\')
       strcpy(full_sample_path, sample_path->s_name);
     else
       snprintf(full_sample_path, 2048, "%s/%s", x->canvas_dir->s_name, sample_path->s_name);
     s.pitch = pitch;
     s.file_path = full_sample_path;
+    post("adding %s", s.file_path);
     sampleplayer_add_sample(x->sp, s);
   }
   else
