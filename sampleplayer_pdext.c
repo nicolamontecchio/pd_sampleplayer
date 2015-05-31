@@ -77,7 +77,7 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
       pitch = atom_getint(argv + 1);
       intensity = atom_getint(argv + 2);
       if(intensity > 0)
-	sampleplayer_voice_on(x->sp, voice, pitch, intensity / 128.f, 8192);   // TODO FIXME
+	sampleplayer_voice_on(x->sp, voice, pitch, intensity / 128.f, 1024);   // TODO FIXME
       else
 	sampleplayer_voice_off(x->sp, voice);
     }
