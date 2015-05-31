@@ -7,11 +7,12 @@
 const int N_MAX_SAMPLES = 8192;
 const int N_VOICES = 256;
 
-SamplePlayer sampleplayer_new()
+SamplePlayer sampleplayer_new(int n_channels)
 {
   SamplePlayer sp;
   sp.initialized = 0;
   sp.n_samples = 0;
+  sp.n_channels = n_channels;
   sp.samples = (Sample *) malloc(sizeof(Sample) * N_MAX_SAMPLES);
   return sp;
 }
@@ -61,7 +62,9 @@ int sampleplayer_initialize(SamplePlayer *sp)
     SNDFILE *sndfile = sf_open(sp->samples[n].file_path, SFM_READ, &info);
     if(sndfile == NULL)
       return SPLR_ERROR_CANNOT_OPEN_SAMPLE_FILE;
-    memblock_size += (info.channels * info.frames);
+    if(info.channels != sp->n_channels)
+      return SPLR_ERROR_INVALID_NUMBER_OF_CHANNELS;
+    memblock_size += (sp->n_channels * info.frames);
     sf_close(sndfile);
   }
   memblock_size *= sizeof(float);
@@ -78,9 +81,8 @@ int sampleplayer_initialize(SamplePlayer *sp)
     SNDFILE *sndfile = sf_open(sp->samples[n].file_path, SFM_READ, &info);
     sf_readf_float(sndfile, sp->memblock + memblock_pos, info.frames);
     sp->samples[n].sample_mem_position_start = memblock_pos;
-    memblock_pos += info.frames * info.channels;
+    memblock_pos += info.frames * sp->n_channels;
     sp->samples[n].sample_mem_position_end = memblock_pos;
-    sp->samples[n].channels = info.channels;
     sf_close(sndfile);
   }
 
@@ -102,13 +104,59 @@ int sampleplayer_voice_on(SamplePlayer *sp, int voice, int pitch, float intensit
 
   // make a voice out of it, replace whatever is in sp->voices[voice]
   v.active = 1;
+  v.releasing = 0;
   v.pitch = pitch;
-  v.sample_channels = sp->samples[n].channels;
   v.sample_mem_position_current = sp->samples[n].sample_mem_position_start;
   v.sample_mem_position_end = sp->samples[n].sample_mem_position_end;
   v.intensity = intensity;
+  v.release_length = release_samples;
   v.release_remaining_length = release_samples;
   sp->voices[voice] = v;
 
   return SPLR_OK;
+}
+
+void sampleplayer_voice_off(SamplePlayer *sp, int voice)
+{
+  sp->voices[voice].releasing = 1;
+}
+
+inline float release_multiplier(int remaining, int total)
+{
+  return remaining > 0 ? ((float) remaining) / ((float) total) : 0;
+}
+
+void sampleplayer_tick(SamplePlayer *sp, float** out, int n_frames)
+{
+  int n;
+  int voice;
+  int channel;
+
+  for(channel = 0; channel < sp->n_channels; channel++)
+    for(n = 0; n < n_frames; n++)
+      out[channel][n] = 0;
+
+  for(voice = 0; voice < N_VOICES; voice++)
+  {
+    if(sp->voices[voice].active)
+    {
+      Voice v = sp->voices[voice];
+      // has more remaining samples than n_frames? otherwise set to inactive
+      if(v.sample_mem_position_end - v.sample_mem_position_current < n_frames)
+        v.active = 0;
+      else
+      {
+	for(channel = 0; channel < sp->n_channels; channel++)
+	  for(n = 0; n < n_frames; n++)
+	  {
+	    float w_n = v.intensity * (v.releasing ? release_multiplier(
+					 v.release_remaining_length, v.release_length) : 1);
+	    out[channel][n] += w_n * sp->memblock[v.sample_mem_position_current + n + channel];
+	  }
+	v.sample_mem_position_current += n;
+	if(v.releasing)
+	  v.release_remaining_length -= n_frames;
+      }
+    }
+  }
 }
