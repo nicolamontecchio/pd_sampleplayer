@@ -52,6 +52,10 @@ int sampleplayer_initialize(SamplePlayer *sp)
   int memblock_size;
   int memblock_pos;
   int n;
+  int v;
+
+  for(v = 0; v < N_VOICES; v++)
+    sp->voices[v].active = 0;
 
   // sort samples by pitch
   qsort((void *) sp->samples, sp->n_samples, sizeof(Sample), sampleplayer_sample_compare_pitch);
@@ -116,6 +120,8 @@ int sampleplayer_voice_on(SamplePlayer *sp, int voice, int pitch, float intensit
   v.release_remaining_length = release_samples;
   sp->voices[voice] = v;
 
+  printf("voice on: pitch: %d, p_curr: %d, p_end: %d\n", pitch, v.sample_mem_position_current, v.sample_mem_position_end);
+
   return SPLR_OK;
 }
 
@@ -145,22 +151,24 @@ void sampleplayer_tick(SamplePlayer *sp, float** out, int n_frames)
     {
       if(sp->voices[voice].active)
       {
-	Voice v = sp->voices[voice];
+	Voice *v = &sp->voices[voice];
+	/* printf("voice %d active -- mempos_current: %d \n", voice, v->sample_mem_position_current); */
+
 	// has more remaining samples than n_frames? otherwise set to inactive
-	if(v.sample_mem_position_end - v.sample_mem_position_current < n_frames)
-	  v.active = 0;
+	if(v->sample_mem_position_end - v->sample_mem_position_current < n_frames * sp->n_channels)
+	  v->active = 0;
 	else
 	{
 	  for(channel = 0; channel < sp->n_channels; channel++)
 	    for(n = 0; n < n_frames; n++)
 	    {
-	      float w_n = v.intensity * (v.releasing ? release_multiplier(
-					   v.release_remaining_length, v.release_length) : 1);
-	      out[channel][n] += w_n * sp->memblock[v.sample_mem_position_current + n + channel];
+	      float w_n = v->intensity * (v->releasing ? release_multiplier(
+					   v->release_remaining_length, v->release_length) : 1);
+	      out[channel][n] += w_n * sp->memblock[v->sample_mem_position_current + sp->n_channels*n + channel];
 	    }
-	  v.sample_mem_position_current += n;
-	  if(v.releasing)
-	    v.release_remaining_length -= n_frames;
+	  v->sample_mem_position_current += n_frames * sp->n_channels;
+	  if(v->releasing)
+	    v->release_remaining_length -= n_frames;
 	}
       }
     }
