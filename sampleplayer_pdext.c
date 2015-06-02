@@ -24,6 +24,8 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
       int status = sampleplayer_initialize(x->sp);
       if(status != SPLR_OK)
 	post("ERROR: sample player did not initialize correctly (error %d)", status);
+      else
+	post("sampleplayer~ initialized");
     }
   }
   else if(strcmp(s->s_name, "addsample") == 0)

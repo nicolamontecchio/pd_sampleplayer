@@ -120,8 +120,6 @@ int sampleplayer_voice_on(SamplePlayer *sp, int voice, int pitch, float intensit
   v.release_remaining_length = release_samples;
   sp->voices[voice] = v;
 
-  printf("voice on: pitch: %d, p_curr: %d, p_end: %d\n", pitch, v.sample_mem_position_current, v.sample_mem_position_end);
-
   return SPLR_OK;
 }
 
