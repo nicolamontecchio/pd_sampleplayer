@@ -1,4 +1,4 @@
-#include "m_pd.h"
+#include <m_pd.h>
 #include <string.h>
 #include <stdio.h>
 #include "sampleplayer.h"
