@@ -15,6 +15,7 @@ typedef struct
   int active;
   int releasing;
   int pitch;
+  int sample_mem_position_start;
   int sample_mem_position_current;
   int sample_mem_position_end;
   float intensity;
@@ -29,6 +30,8 @@ typedef struct
   char *file_path;
   int sample_mem_position_start;
   int sample_mem_position_end;
+  int loop_start_frame;  // if < 0, no loop
+  int loop_end_frame;
 } Sample;
 
 

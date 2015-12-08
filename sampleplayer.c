@@ -33,6 +33,8 @@ int sampleplayer_add_sample(SamplePlayer *sp, Sample s)
   if(sp->n_samples < N_MAX_SAMPLES)
   {
     sp->samples[sp->n_samples].pitch = s.pitch;
+    sp->samples[sp->n_samples].loop_start_frame = s.loop_start_frame;
+    sp->samples[sp->n_samples].loop_end_frame = s.loop_end_frame;
     sp->samples[sp->n_samples].file_path = (char *) malloc(strlen(s.file_path) + 1);
     strcpy(sp->samples[sp->n_samples].file_path, s.file_path);
     sp->n_samples++;
@@ -113,7 +115,8 @@ int sampleplayer_voice_on(SamplePlayer *sp, int voice, int pitch, float intensit
   v.active = 1;
   v.releasing = 0;
   v.pitch = pitch;
-  v.sample_mem_position_current = sp->samples[n].sample_mem_position_start;
+  v.sample_mem_position_start = sp->samples[n].sample_mem_position_start;
+  v.sample_mem_position_current = v.sample_mem_position_start;
   v.sample_mem_position_end = sp->samples[n].sample_mem_position_end;
   v.intensity = intensity;
   v.release_length = release_samples;
@@ -157,16 +160,18 @@ void sampleplayer_tick(SamplePlayer *sp, float** out, int n_frames)
 	  v->active = 0;
 	else
 	{
-	  for(channel = 0; channel < sp->n_channels; channel++)
-	    for(n = 0; n < n_frames; n++)
+	  for(n = 0; n < n_frames; n++)
+	  {
+	    float w_n = v->intensity * (v->releasing ? release_multiplier(
+					  v->release_remaining_length, v->release_length) : 1);
+	    for(channel = 0; channel < sp->n_channels; channel++)
 	    {
-	      float w_n = v->intensity * (v->releasing ? release_multiplier(
-					   v->release_remaining_length, v->release_length) : 1);
-	      out[channel][n] += w_n * sp->memblock[v->sample_mem_position_current + sp->n_channels*n + channel];
+	      out[channel][n] += w_n * sp->memblock[v->sample_mem_position_current];
+	      v->sample_mem_position_current++;
 	    }
-	  v->sample_mem_position_current += n_frames * sp->n_channels;
 	  if(v->releasing)
-	    v->release_remaining_length -= n_frames;
+	    v->release_remaining_length--;
+	  }
 	}
       }
     }
