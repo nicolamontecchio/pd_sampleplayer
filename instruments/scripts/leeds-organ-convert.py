@@ -22,8 +22,8 @@ def parse_preset(fstream_in):
 
 if __name__ == '__main__':
     base_dir = sys.argv[1]
-    preset_fnames = [f for f in os.listdir(base_dir) if f.endswith('.sfz')]
-    for preset_fname in preset_fnames:
-        with open(preset_fname[:-4] + '.pdsampler', 'w') as out:
-            for l in parse_preset(open(os.path.join(base_dir, preset_fname))):
+    presets = [f for f in os.listdir(base_dir) if f.endswith('.sfz')]
+    for pf in presets:
+        with open(os.path.join(base_dir, pf[:-4] + '.pdsampler'), 'w') as out:
+            for l in parse_preset(open(os.path.join(base_dir, pf))):
                 print >> out, ' '.join(list(l))
