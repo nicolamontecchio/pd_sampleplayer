@@ -18,6 +18,8 @@ typedef struct
   int sample_mem_position_start;
   int sample_mem_position_current;
   int sample_mem_position_end;
+  int sample_mem_loop_start;
+  int sample_mem_loop_end;
   float intensity;
   int release_length;
   int release_remaining_length;
@@ -26,12 +28,14 @@ typedef struct
 
 typedef struct
 {
+  // to be filled by creator
   int pitch;
   char *file_path;
-  int sample_mem_position_start;
-  int sample_mem_position_end;
   int loop_start_frame;  // if < 0, no loop
   int loop_end_frame;
+  // filled by initialize() function
+  int sample_mem_position_start;
+  int sample_mem_position_end;
 } Sample;
 
 

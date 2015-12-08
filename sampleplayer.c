@@ -88,10 +88,11 @@ int sampleplayer_initialize(SamplePlayer *sp)
   {
     SF_INFO info;
     SNDFILE *sndfile = sf_open(sp->samples[n].file_path, SFM_READ, &info);
+    Sample *s = sp->samples + n;
     sf_readf_float(sndfile, sp->memblock + memblock_pos, info.frames);
-    sp->samples[n].sample_mem_position_start = memblock_pos;
+    s->sample_mem_position_start = memblock_pos;
     memblock_pos += info.frames * sp->n_channels;
-    sp->samples[n].sample_mem_position_end = memblock_pos;
+    s->sample_mem_position_end = memblock_pos;
     sf_close(sndfile);
   }
 
@@ -103,6 +104,7 @@ int sampleplayer_voice_on(SamplePlayer *sp, int voice, int pitch, float intensit
 {
   int n;
   Voice v;
+  Sample *s;
 
   // find sample (TODO implement binary search since they are ordered, but linear is ok for now)
   for(n = 0; n < sp->n_samples; n++)
@@ -111,13 +113,17 @@ int sampleplayer_voice_on(SamplePlayer *sp, int voice, int pitch, float intensit
   if(n == sp->n_samples)
     return SPLR_ERROR_INVALID_PITCH;
 
+  s = sp->samples + n;
+
   // make a voice out of it, replace whatever is in sp->voices[voice]
   v.active = 1;
   v.releasing = 0;
   v.pitch = pitch;
-  v.sample_mem_position_start = sp->samples[n].sample_mem_position_start;
+  v.sample_mem_position_start = s->sample_mem_position_start;
   v.sample_mem_position_current = v.sample_mem_position_start;
-  v.sample_mem_position_end = sp->samples[n].sample_mem_position_end;
+  v.sample_mem_position_end = s->sample_mem_position_end;
+  v.sample_mem_loop_start = v.sample_mem_position_start + s->loop_start_frame * sp->n_channels;
+  v.sample_mem_loop_end = v.sample_mem_position_start + s->loop_end_frame * sp->n_channels;
   v.intensity = intensity;
   v.release_length = release_samples;
   v.release_remaining_length = release_samples;
@@ -155,22 +161,28 @@ void sampleplayer_tick(SamplePlayer *sp, float** out, int n_frames)
 	Voice *v = &sp->voices[voice];
 	/* printf("voice %d active -- mempos_current: %d \n", voice, v->sample_mem_position_current); */
 
+	// loop?
+
+
 	// has more remaining samples than n_frames? otherwise set to inactive
-	if(v->sample_mem_position_end - v->sample_mem_position_current < n_frames * sp->n_channels)
+	if(v->sample_mem_position_current == v->sample_mem_position_end)
 	  v->active = 0;
-	else
+
+	for(n = 0; n < n_frames; n++)
 	{
-	  for(n = 0; n < n_frames; n++)
+	  float w_n = v->intensity * (v->releasing ? release_multiplier(
+					v->release_remaining_length, v->release_length) : 1);
+	  for(channel = 0; channel < sp->n_channels; channel++)
 	  {
-	    float w_n = v->intensity * (v->releasing ? release_multiplier(
-					  v->release_remaining_length, v->release_length) : 1);
-	    for(channel = 0; channel < sp->n_channels; channel++)
-	    {
-	      out[channel][n] += w_n * sp->memblock[v->sample_mem_position_current];
-	      v->sample_mem_position_current++;
-	    }
+	    out[channel][n] += w_n * sp->memblock[v->sample_mem_position_current];
+	    v->sample_mem_position_current++;
+	  }
 	  if(v->releasing)
 	    v->release_remaining_length--;
+	  if(v->release_remaining_length == 0)
+	  {
+	    v->active = 0;
+	    break;
 	  }
 	}
       }
