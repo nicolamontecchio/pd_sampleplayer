@@ -165,11 +165,16 @@ void sampleplayer_tick(SamplePlayer *sp, float** out, int n_frames)
 
 
 	// has more remaining samples than n_frames? otherwise set to inactive
-	if(v->sample_mem_position_current == v->sample_mem_position_end)
-	  v->active = 0;
 
 	for(n = 0; n < n_frames; n++)
 	{
+	  if(v->sample_mem_position_current == v->sample_mem_position_end ||
+	     v->release_remaining_length == 0)
+	    v->active = 0;
+
+	  if(!v->active)
+	    break;
+
 	  float w_n = v->intensity * (v->releasing ? release_multiplier(
 					v->release_remaining_length, v->release_length) : 1);
 	  for(channel = 0; channel < sp->n_channels; channel++)
@@ -179,11 +184,6 @@ void sampleplayer_tick(SamplePlayer *sp, float** out, int n_frames)
 	  }
 	  if(v->releasing)
 	    v->release_remaining_length--;
-	  if(v->release_remaining_length == 0)
-	  {
-	    v->active = 0;
-	    break;
-	  }
 	}
       }
     }
