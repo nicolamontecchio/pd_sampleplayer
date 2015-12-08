@@ -164,12 +164,19 @@ void sampleplayer_tick(SamplePlayer *sp, float** out, int n_frames)
 	// loop?
 
 
-	// has more remaining samples than n_frames? otherwise set to inactive
-
 	for(n = 0; n < n_frames; n++)
 	{
-	  if(v->sample_mem_position_current == v->sample_mem_position_end ||
-	     v->release_remaining_length == 0)
+
+	  if(v->release_remaining_length == 0)
+	    v->active = 0;
+
+	  // end of loop (if looping)? move cursor
+	  if(v->sample_mem_position_current == v->sample_mem_loop_end &&
+	     v->sample_mem_loop_start > 0)
+	    v->sample_mem_position_current = v->sample_mem_loop_start;
+
+	  // not looping and out of samples? deactivate voice
+	  else if(v->sample_mem_position_current == v->sample_mem_position_end)
 	    v->active = 0;
 
 	  if(!v->active)

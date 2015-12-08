@@ -31,23 +31,26 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
   else if(strcmp(s->s_name, "addsample") == 0)
   {
     int pitch;
-    float release_time;
     t_symbol* sample_path;
     char full_sample_path[2048];
     Sample s;
+    /* float samplerate = sys_getsr(); */
+
     if(x->sp->initialized)
     {
       post("already initialized, cannot add new samples");
       return;
     }
-    if(argc != 2)
+    if(argc != 2 && argc != 4)
     {
-      post("wrong number of arguments: must be pitch, sample_path");
+      post("wrong number of arguments: must be pitch, sample_path [, loop_start, loop_end]");
       return;
     }
-    if(argv[0].a_type != A_FLOAT)
+    if(argv[0].a_type != A_FLOAT ||
+       (argc == 4 & argv[2].a_type != A_FLOAT) ||
+       (argc == 4 & argv[3].a_type != A_FLOAT))
     {
-      post("wrong type of arguments, must be int - string");
+      post("wrong type of arguments, must be: int, string [, int, int]");
       return;
     }
     pitch = atom_getint(argv + 0);
@@ -58,6 +61,16 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
       snprintf(full_sample_path, 2048, "%s/%s", x->canvas_dir->s_name, sample_path->s_name);
     s.pitch = pitch;
     s.file_path = full_sample_path;
+    if(argc == 2) // no looping
+    {
+      s.loop_start_frame = -1;
+      s.loop_end_frame = -1;
+    }
+    else
+    {
+      s.loop_start_frame = atom_getint(argv + 2);
+      s.loop_end_frame = atom_getint(argv + 3);
+    }
     post("adding %s", s.file_path);
     sampleplayer_add_sample(x->sp, s);
   }
