@@ -57,4 +57,4 @@ int sampleplayer_initialize(SamplePlayer *sp);
 int sampleplayer_voice_on(SamplePlayer *sp, int voice, int pitch, float intensity, int release_samples);
 void sampleplayer_voice_off(SamplePlayer *sp, int voice);
 void sampleplayer_tick(SamplePlayer *sp, float** out, int n_frames);
-/* int sampleplayer_memoryusage(void *o); */
+void sampleplayer_reset_voices(SamplePlayer *sp);

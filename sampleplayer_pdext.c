@@ -74,6 +74,13 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
     post("adding %s", s.file_path);
     sampleplayer_add_sample(x->sp, s);
   }
+  else if(strcmp(s->s_name, "reset") == 0)
+  {
+    if(!x->sp->initialized)
+      post("ERROR: sampleplayer~ not initialized");
+    else
+      sampleplayer_reset_voices(x->sp);
+  }
   else
   {
     if(!x->sp->initialized)

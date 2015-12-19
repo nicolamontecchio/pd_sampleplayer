@@ -196,3 +196,10 @@ void sampleplayer_tick(SamplePlayer *sp, float** out, int n_frames)
     }
   }
 }
+
+void sampleplayer_reset_voices(SamplePlayer *sp)
+{
+  int n;
+  for(n = 0; n < N_VOICES; n++)
+    sampleplayer_voice_off(sp, n);
+}
