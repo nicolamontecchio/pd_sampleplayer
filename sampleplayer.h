@@ -1,4 +1,3 @@
-
 typedef enum
 {
   SPLR_OK,
@@ -50,6 +49,7 @@ typedef struct
 } SamplePlayer;
 
 
+
 SamplePlayer * sampleplayer_new(int n_channels);
 void sampleplayer_free(SamplePlayer *sp);
 int sampleplayer_add_sample(SamplePlayer *sp, Sample s);
@@ -58,3 +58,9 @@ int sampleplayer_voice_on(SamplePlayer *sp, int voice, int pitch, float intensit
 void sampleplayer_voice_off(SamplePlayer *sp, int voice);
 void sampleplayer_tick(SamplePlayer *sp, float** out, int n_frames);
 void sampleplayer_reset_voices(SamplePlayer *sp);
+
+
+// WIP BELOW
+
+/* int resampled_signal_length(int original_length, double speedup); */
+/* void resample(float **input, int n_channels, float **output, double resampling_ratio);   // assumes output is already allocated */

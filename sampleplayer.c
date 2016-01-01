@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sndfile.h>
+#include <math.h>
 
 const int N_MAX_SAMPLES = 8192;
 const int N_VOICES = 256;
@@ -202,4 +203,62 @@ void sampleplayer_reset_voices(SamplePlayer *sp)
   int n;
   for(n = 0; n < N_VOICES; n++)
     sampleplayer_voice_off(sp, n);
+}
+
+
+// WIP BELOW
+
+int resampled_signal_length(int original_length, double speedup)
+{
+  return (int) ceil(original_length / speedup);
+}
+
+// upsample by 2x, then linear interpolation
+void resample(float **input, int n_channels, int n_samples, float **output, double speedup_ratio)
+{
+  // chebishev, order 8
+  int filter_order = 8;
+  float filter_numerator[] = {5.61535722137e-05, 0.00044922857771, 0.00157230002198, 0.00314460004397, 0.00393075005496, 0.00314460004397, 0.00157230002198, 0.00044922857771, 5.61535722137e-05};
+  float filter_denominator[] = {1.0, -4.35580828647, 8.81829161732, -10.6524418999, 8.32616557304, -4.28690144523, 1.41400191292, -0.272318832763, 0.0233866755517};
+
+  // upsample
+  float **upsampled_signal = (float **) malloc(sizeof(float *) * n_channels);
+  for(int c = 0; c < n_channels; c++)
+  {
+    upsampled_signal[c] = (float *) malloc(sizeof(float) * n_samples * 2);
+    for(int n = 0; n < n_samples; n++)
+      upsampled_signal[c][2 * n] = input[c][n];
+    for(int n = 0; n < n_samples * 2; n++)
+    {
+      float out = 0;
+      for(int k = 0; k <= filter_order; k++) {
+	float _in = (n-k % 2 != 0 || n-k < 0) ? 0 : input[c][n/2];
+	out += filter_numerator[k] * _in;
+      }
+      for(int k = 0; k < filter_order; k++) {
+	float _out = (n-k < 0) ? 0 : upsampled_signal[c][n-k];
+	out += filter_denominator[k] * _out;
+      }
+    }
+  }
+
+  // interpolate
+  int n_output_samples = resampled_signal_length(n_samples, speedup_ratio);
+  for(int c = 0; c < n_channels; c++)
+  {
+    for(int n = 0; n < n_output_samples; n++) {
+      double p = n * 2. / speedup_ratio;
+      int a = (int) floor(p);
+      a = a >= n_output_samples ? n_output_samples - 1 : a;
+      int b = a + 1;
+      b = b >= n_output_samples ? n_output_samples - 1 : b;
+      output[c][n] = (p - a) * upsampled_signal[c][b] + (b - p) * upsampled_signal[c][a];
+    }
+  }
+
+  // free intermediate upsampled signal
+  for(int c = 0; c < n_channels; c++)
+    free(upsampled_signal[c]);
+  free(upsampled_signal);
+
 }
