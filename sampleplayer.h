@@ -62,5 +62,5 @@ void sampleplayer_reset_voices(SamplePlayer *sp);
 
 // WIP BELOW
 
-/* int resampled_signal_length(int original_length, double speedup); */
-/* void resample(float **input, int n_channels, float **output, double resampling_ratio);   // assumes output is already allocated */
+int resampled_signal_length(int original_length, double speedup);
+void resample(float **input, int n_channels, int n_samples, float **output, double speedup_ratio);

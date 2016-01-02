@@ -17,3 +17,8 @@ add_library(sampleplayer-pdext SHARED
   sampleplayer_pdext.c)
 target_link_libraries(sampleplayer-pdext sndfile)
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
+
+
+# test program for resampling
+add_executable(resample test_resampling.c)
+target_link_libraries(resample sampleplayer-static sndfile)
