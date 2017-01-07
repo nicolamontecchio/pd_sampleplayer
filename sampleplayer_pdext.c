@@ -34,7 +34,6 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
     t_symbol* sample_path;
     char full_sample_path[2048];
     Sample s;
-    /* float samplerate = sys_getsr(); */
 
     if(x->sp->initialized)
     {
