@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+# Make a sample loopable.
+# usage:
+#   looper input_file.wav output_file.wav sample_from sample_from_end fade_samples
+# this script needs scikits.audiolab (pip install scikits.audiolab)
+
+import sys
+from scikits.audiolab import wavread, wavwrite
+import numpy as np
+
+
+if __name__ == '__main__':
+    _, fpath_in, fpath_out, s_start, s_from_end, s_dur = sys.argv
+    s_start, s_from_end, s_dur = int(s_start), int(s_from_end), int(s_dur)
+
+    # read in
+    x, fs, enc = wavread(fpath_in)   # this is N_SAMPLES x N_CHANNELS
+    if x.ndim == 1:
+        x = x.reshape(-1, 1)
+    n_frames, n_chans = x.shape
+
+    # compute crossfade
+    xf1 = x[s_start:s_start + s_dur,:]
+    xf2 = x[s_from_end-s_dur:s_from_end,:]
+    x[n_frames-s_from_end-s_dur:n_frames-s_from_end,:] = \
+      np.tile(np.linspace(0,1,s_dur).reshape(-1,1), (1, n_chans)) * xf1 + \
+      np.tile(np.linspace(1,0,s_dur).reshape(-1,1), (1, n_chans)) * xf2
+
+    # write out
+    wavwrite(x, fpath_out, fs, enc)
+
+    # print out the looping points
+    print n_frames-s_from_end-s_dur, n_frames-s_from_end
