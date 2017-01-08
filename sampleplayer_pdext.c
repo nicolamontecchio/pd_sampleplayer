@@ -1,6 +1,7 @@
 #include <m_pd.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "sampleplayer.h"
 
 static t_class *sampleplayer_tilde_class;
@@ -72,6 +73,34 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
     }
     post("adding %s", s.file_path);
     sampleplayer_add_sample(x->sp, s);
+  }
+  else if(strcmp(s->s_name, "load") == 0)
+  {
+    if(argc != 1)
+    {
+      post("usage: load input_file.txt");
+      return;
+    }
+
+    t_symbol *fpath_s = atom_getsymbolarg(0, argc, argv);
+    FILE *fp = fopen(fpath_s->s_name, "r");
+    if(fp == NULL)
+    {
+      post("could not open file for reading");
+      return;
+    }
+
+    size_t len = 0;
+    char *line = NULL;
+    ssize_t read;
+    while ((read = getline(&line, &len, fp)) != -1) {
+      /* printf("Retrieved line of length %zu :\n", read); */
+      /* printf("%s", line); */
+      // TODO complete!
+    }
+
+    free(line);
+    fclose(fp);
   }
   else if(strcmp(s->s_name, "reset") == 0)
   {

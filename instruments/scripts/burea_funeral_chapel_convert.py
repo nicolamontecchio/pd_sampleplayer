@@ -21,8 +21,6 @@ if __name__ == '__main__':
                  'Salicional8', 'Subbas16', 'VoixCeleste8']
     p = re.compile('.*/(\d\d\d)-.*')
 
-
-
     with open(os.path.join(dir_out, 'instrument.txt'), 'w') as out:
         for ri, reg in enumerate(registers):
             reg_dir = os.path.join(dir_in, reg)
