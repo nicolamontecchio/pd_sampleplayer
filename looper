@@ -12,9 +12,10 @@ import numpy as np
 
 
 def xfade_curve(n_samples, n_channels, fade_in):
-    base = np.linspace(0,1,n_samples) if fade_in else np.linspace(1,0,n_samples)
+    base = np.linspace(1,0,n_samples) if fade_in else np.linspace(0,1,n_samples)
     curve = np.cos(np.pi * 0.5 * base).reshape(-1,1)
     tiled = np.tile(curve, (1, n_channels))
+    # print tiled
     return tiled
 
 
@@ -24,17 +25,23 @@ if __name__ == '__main__':
 
     # read in
     x, fs, enc = wavread(fpath_in)   # this is N_SAMPLES x N_CHANNELS
+    print 'original shape:', x.shape
     if x.ndim == 1:
         x = x.reshape(-1, 1)
     n_frames, n_chans = x.shape
+    print '%d frames, %d channels' % (n_frames, n_chans)
 
     # compute crossfade and truncate
+    x = x[:s_end,:]
     xf1 = x[s_start:s_start + s_dur,:]
-    xf2 = x[s_end-s_dur:s_end,:]
+    print 'xf1 shape', xf1.shape
+    xf2 = x[-s_dur:s_end,:]
+    print 'xf2 shape', xf2.shape
     x[s_end-s_dur:s_end,:] = \
       xfade_curve(s_dur, n_chans, True) * xf1 + \
       xfade_curve(s_dur, n_chans, False) * xf2
-    x = x[:s_end,:]
 
+    print 'final shape', x.shape
+    print 'loop entry', s_start + s_dur
     # write out
     wavwrite(x, fpath_out, fs, enc)

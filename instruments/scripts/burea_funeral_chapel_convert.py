@@ -9,10 +9,12 @@ import re
 import os
 import glob
 import subprocess
+import random
 
 
 SAMPLE_BEGIN = 22050
 SAMPLE_END = 66150
+XFADE_DUR = 11025
 
 if __name__ == '__main__':
 
@@ -33,10 +35,12 @@ if __name__ == '__main__':
                 midi_note = p.findall(file_in)[0]
                 output_note = '%d%s' % (ri, midi_note)
                 output_fname = os.path.join(dir_out, output_note + ".wav")
+                s_b = SAMPLE_BEGIN + random.randint(-4096,4096)
+                s_e = SAMPLE_END + random.randint(-4096,4096)
                 proc = subprocess.Popen(['./looper', file_in, output_fname,
-                                         str(SAMPLE_BEGIN),
-                                         str(SAMPLE_END),
-                                         '5512'],
+                                         str(s_b),
+                                         str(s_e),
+                                         str(XFADE_DUR)],
                                         stdout=subprocess.PIPE)
                 proc.communicate()
-                print >> out, '%s %s %d %d' % (output_note, output_fname, SAMPLE_BEGIN, SAMPLE_END)
+                print >> out, '%s %s %d %d' % (output_note, output_fname, s_b + XFADE_DUR, s_e)
