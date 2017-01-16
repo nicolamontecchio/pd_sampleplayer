@@ -1,4 +1,4 @@
-#N canvas 261 596 769 290 10;
+#N canvas 1037 758 701 389 10;
 #X obj 16 222 sampleplayer~;
 #X text 93 164 triple (voice/pitch/velocity) -- like output from [poly]
 object -- triggers note play/stop;
@@ -12,6 +12,10 @@ object -- triggers note play/stop;
 #X msg 16 36 addsample 43 sample_43.wav 186715 552028;
 #X text 15 15 assign a wavefile to id 43 w/ a loop expressed in frames
 ;
+#X msg 76 123 1 5052 127;
+#X msg 97 145 1 5052 0;
+#X msg 38 57 addsample 5052 instruments/burea/4060.wav 22050 66150
+;
 #X connect 0 0 4 0;
 #X connect 0 1 4 1;
 #X connect 2 0 0 0;
@@ -19,3 +23,6 @@ object -- triggers note play/stop;
 #X connect 6 0 0 0;
 #X connect 8 0 7 0;
 #X connect 9 0 0 0;
+#X connect 11 0 0 0;
+#X connect 12 0 0 0;
+#X connect 13 0 0 0;

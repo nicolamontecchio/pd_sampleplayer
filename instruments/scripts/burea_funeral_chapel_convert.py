@@ -11,6 +11,9 @@ import glob
 import subprocess
 
 
+SAMPLE_BEGIN = 22050
+SAMPLE_END = 66150
+
 if __name__ == '__main__':
 
     _, dir_in = sys.argv
@@ -28,10 +31,12 @@ if __name__ == '__main__':
             reg_files = sorted(glob.glob(reg_dir + '/*.wav'))
             for file_in in reg_files:
                 midi_note = p.findall(file_in)[0]
-                output_note = '%d%s.wav' % (ri, midi_note)
-                output_fname = os.path.join(dir_out, output_note)
+                output_note = '%d%s' % (ri, midi_note)
+                output_fname = os.path.join(dir_out, output_note + ".wav")
                 proc = subprocess.Popen(['./looper', file_in, output_fname,
-                                         '22050', '66150', '5512'],
+                                         str(SAMPLE_BEGIN),
+                                         str(SAMPLE_END),
+                                         '5512'],
                                         stdout=subprocess.PIPE)
-                output, _ = proc.communicate()
-                print >> out, '%s %s %s' % (output_fname, output_note, output.strip())
+                proc.communicate()
+                print >> out, '%s %s %d %d' % (output_note, output_fname, SAMPLE_BEGIN, SAMPLE_END)

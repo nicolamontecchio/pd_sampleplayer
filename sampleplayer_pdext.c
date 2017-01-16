@@ -24,7 +24,32 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
     {
       int status = sampleplayer_initialize(x->sp);
       if(status != SPLR_OK)
-	post("ERROR: sample player did not initialize correctly (error %d)", status);
+      {
+	post("ERROR: sample player did not initialize correctly");
+	switch(status)
+	{
+	case SPLR_ERROR_TOO_MANY_SAMPLES_ALREADY:
+	  post(" -- error: SPLR_ERROR_TOO_MANY_SAMPLES_ALREADY");
+	  break;
+	case SPLR_ERROR_CANNOT_OPEN_SAMPLE_FILE:
+	  post(" -- error: SPLR_ERROR_CANNOT_OPEN_SAMPLE_FILE");
+	  break;
+	case SPLR_ERROR_CANNOT_ALLOCATE_MEMORY:
+	  post(" -- error: SPLR_ERROR_CANNOT_ALLOCATE_MEMORY");
+	  break;
+	case SPLR_ERROR_SAMPLER_UNINITIALIZED:
+	  post(" -- error: SPLR_ERROR_SAMPLER_UNINITIALIZED");
+	  break;
+	case SPLR_ERROR_INVALID_PITCH:
+	  post(" -- error: SPLR_ERROR_INVALID_PITCH");
+	  break;
+	case SPLR_ERROR_INVALID_NUMBER_OF_CHANNELS:
+	  post(" -- error: SPLR_ERROR_INVALID_NUMBER_OF_CHANNELS");
+	  break;
+	default:
+	  post(" -- UNKNOWN ERROR CODE %d", status);
+	}
+      }
       else
 	post("sampleplayer~ initialized");
     }
@@ -94,6 +119,7 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
     char *line = NULL;
     ssize_t read;
     while ((read = getline(&line, &len, fp)) != -1) {
+
       /* printf("Retrieved line of length %zu :\n", read); */
       /* printf("%s", line); */
       // TODO complete!
