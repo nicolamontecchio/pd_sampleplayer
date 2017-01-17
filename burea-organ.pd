@@ -1,0 +1,55 @@
+#N canvas 723 520 1038 459 10;
+#X obj 102 302 sampleplayer~;
+#X msg 101 203 load instruments/burea/instrument.txt;
+#X obj 490 36 notein;
+#X obj 490 63 pack f f;
+#X obj 490 234 pack 0 0 0;
+#X obj 490 96 poly 64 0;
+#X obj 547 145 route 0;
+#X obj 547 174 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 579 174 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 579 194 128;
+#X msg 547 194 0;
+#X floatatom 618 122 5 0 0 0 - - -, f 5;
+#X msg 575 58 clear;
+#X msg 718 133 44 127;
+#X floatatom 666 122 5 0 0 0 - - -, f 5;
+#X obj 665 92 print midi-in;
+#X obj 131 376 dac~;
+#X obj 101 170 loadbang;
+#X obj 490 283 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 510 283 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 530 283 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 550 283 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 570 283 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 590 283 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X connect 0 0 16 0;
+#X connect 0 1 16 1;
+#X connect 1 0 0 0;
+#X connect 2 0 3 0;
+#X connect 2 1 3 1;
+#X connect 3 0 5 0;
+#X connect 3 0 15 0;
+#X connect 4 0 0 0;
+#X connect 5 0 4 0;
+#X connect 5 1 4 1;
+#X connect 5 1 11 0;
+#X connect 5 2 6 0;
+#X connect 5 2 14 0;
+#X connect 6 0 7 0;
+#X connect 6 1 8 0;
+#X connect 7 0 10 0;
+#X connect 8 0 9 0;
+#X connect 9 0 4 2;
+#X connect 10 0 4 2;
+#X connect 12 0 5 0;
+#X connect 13 0 5 0;
+#X connect 17 0 1 0;
