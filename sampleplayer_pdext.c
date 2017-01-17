@@ -13,6 +13,17 @@ typedef struct _sampleplayer_tilde
   t_symbol* canvas_dir;
 } t_sampleplayer_tilde;
 
+// NB allocates the return valued
+char * full_path_from_cwd(char *path, t_sampleplayer_tilde *x)
+{
+  char *full_sample_path = malloc(2048);  // TODO adjust to proper size
+  if(path[0] == '/' || path[0] == '\\')
+    strcpy(full_sample_path, path);
+  else
+    snprintf(full_sample_path, 2048, "%s/%s", x->canvas_dir->s_name, path);
+  post("input %s output %s", path, full_sample_path);
+  return full_sample_path;
+}
 
 void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, t_atom *argv)
 {
@@ -58,7 +69,6 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
   {
     int pitch;
     t_symbol* sample_path;
-    char full_sample_path[2048];
     Sample s;
 
     if(x->sp->initialized)
@@ -80,12 +90,8 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
     }
     pitch = atom_getint(argv + 0);
     sample_path = atom_gensym(argv + 1);
-    if(sample_path->s_name[0] == '/' || sample_path->s_name[0] == '\\')
-      strcpy(full_sample_path, sample_path->s_name);
-    else
-      snprintf(full_sample_path, 2048, "%s/%s", x->canvas_dir->s_name, sample_path->s_name);
     s.pitch = pitch;
-    s.file_path = full_sample_path;
+    s.file_path = full_path_from_cwd(sample_path->s_name, x);
     if(argc == 2) // no looping
     {
       s.loop_start_frame = -1;
@@ -108,23 +114,40 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
     }
 
     t_symbol *fpath_s = atom_getsymbolarg(0, argc, argv);
-    FILE *fp = fopen(fpath_s->s_name, "r");
+    char *full_fpath = full_path_from_cwd(fpath_s->s_name, x);
+    FILE *fp = fopen(full_fpath, "r");
     if(fp == NULL)
     {
       post("could not open file for reading");
       return;
     }
+    free(full_fpath);
 
     size_t len = 0;
     char *line = NULL;
     ssize_t read;
     while ((read = getline(&line, &len, fp)) != -1) {
-
-      /* printf("Retrieved line of length %zu :\n", read); */
-      /* printf("%s", line); */
-      // TODO complete!
+      char *strtok_param, *token;
+      Sample s;
+      token = strtok_r(line, " ", &strtok_param);
+      s.pitch = atoi(token);
+      token = strtok_r(NULL, " ", &strtok_param);
+      s.file_path = full_path_from_cwd(token, x);
+      token = strtok_r(NULL, " ", &strtok_param);
+      if(token) // looping
+      {
+	s.loop_start_frame = atoi(token);
+	token = strtok_r(NULL, " ", &strtok_param);
+	s.loop_end_frame = atoi(token);
+      }
+      else // no looping
+      {
+	s.loop_start_frame = -1;
+	s.loop_end_frame = -1;
+      }
+      post("adding %s with note %d, looping between %d abd %d", s.file_path, s.pitch, s.loop_start_frame, s.loop_end_frame);
+      sampleplayer_add_sample(x->sp, s);
     }
-
     free(line);
     fclose(fp);
   }
