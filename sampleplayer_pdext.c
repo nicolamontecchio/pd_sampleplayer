@@ -25,45 +25,50 @@ char * full_path_from_cwd(char *path, t_sampleplayer_tilde *x)
   return full_sample_path;
 }
 
+void initialize(t_sampleplayer_tilde *x)
+{
+  if(x->sp->initialized)
+    post("already initialized; cannot re-initialize");
+  else
+  {
+    int status = sampleplayer_initialize(x->sp);
+    if(status != SPLR_OK)
+    {
+      post("ERROR: sample player did not initialize correctly");
+      switch(status)
+      {
+      case SPLR_ERROR_TOO_MANY_SAMPLES_ALREADY:
+	post(" -- error: SPLR_ERROR_TOO_MANY_SAMPLES_ALREADY");
+	break;
+      case SPLR_ERROR_CANNOT_OPEN_SAMPLE_FILE:
+	post(" -- error: SPLR_ERROR_CANNOT_OPEN_SAMPLE_FILE");
+	break;
+      case SPLR_ERROR_CANNOT_ALLOCATE_MEMORY:
+	post(" -- error: SPLR_ERROR_CANNOT_ALLOCATE_MEMORY");
+	break;
+      case SPLR_ERROR_SAMPLER_UNINITIALIZED:
+	post(" -- error: SPLR_ERROR_SAMPLER_UNINITIALIZED");
+	break;
+      case SPLR_ERROR_INVALID_PITCH:
+	post(" -- error: SPLR_ERROR_INVALID_PITCH");
+	break;
+      case SPLR_ERROR_INVALID_NUMBER_OF_CHANNELS:
+	post(" -- error: SPLR_ERROR_INVALID_NUMBER_OF_CHANNELS");
+	break;
+      default:
+	post(" -- UNKNOWN ERROR CODE %d", status);
+      }
+    }
+    else
+      post("sampleplayer~ initialized");
+  }
+}
+
 void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, t_atom *argv)
 {
   if(strcmp(s->s_name, "initialize") == 0)
   {
-    if(x->sp->initialized)
-      post("already initialized; cannot re-initialize");
-    else
-    {
-      int status = sampleplayer_initialize(x->sp);
-      if(status != SPLR_OK)
-      {
-	post("ERROR: sample player did not initialize correctly");
-	switch(status)
-	{
-	case SPLR_ERROR_TOO_MANY_SAMPLES_ALREADY:
-	  post(" -- error: SPLR_ERROR_TOO_MANY_SAMPLES_ALREADY");
-	  break;
-	case SPLR_ERROR_CANNOT_OPEN_SAMPLE_FILE:
-	  post(" -- error: SPLR_ERROR_CANNOT_OPEN_SAMPLE_FILE");
-	  break;
-	case SPLR_ERROR_CANNOT_ALLOCATE_MEMORY:
-	  post(" -- error: SPLR_ERROR_CANNOT_ALLOCATE_MEMORY");
-	  break;
-	case SPLR_ERROR_SAMPLER_UNINITIALIZED:
-	  post(" -- error: SPLR_ERROR_SAMPLER_UNINITIALIZED");
-	  break;
-	case SPLR_ERROR_INVALID_PITCH:
-	  post(" -- error: SPLR_ERROR_INVALID_PITCH");
-	  break;
-	case SPLR_ERROR_INVALID_NUMBER_OF_CHANNELS:
-	  post(" -- error: SPLR_ERROR_INVALID_NUMBER_OF_CHANNELS");
-	  break;
-	default:
-	  post(" -- UNKNOWN ERROR CODE %d", status);
-	}
-      }
-      else
-	post("sampleplayer~ initialized");
-    }
+    initialize(x);
   }
   else if(strcmp(s->s_name, "addsample") == 0)
   {
@@ -149,6 +154,7 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
     }
     free(line);
     fclose(fp);
+    initialize(x);
   }
   else if(strcmp(s->s_name, "reset") == 0)
   {
