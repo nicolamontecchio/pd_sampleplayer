@@ -22,8 +22,9 @@ void sampleplayer_free(SamplePlayer *sp)
 {
   int n;
   for(n = 0; n < sp->n_samples; n++)
-    free(sp->samples[n].file_path);
-  if(sp->memblock != 0)
+    if(sp->samples[n].file_path)
+      free(sp->samples[n].file_path);
+  if(sp->memblock)
     free(sp->memblock);
   free(sp->voices);
 }
