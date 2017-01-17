@@ -21,7 +21,7 @@ char * full_path_from_cwd(char *path, t_sampleplayer_tilde *x)
     strcpy(full_sample_path, path);
   else
     snprintf(full_sample_path, 2048, "%s/%s", x->canvas_dir->s_name, path);
-  post("input %s output %s", path, full_sample_path);
+  /* post("input %s output %s", path, full_sample_path); */
   return full_sample_path;
 }
 
@@ -102,7 +102,6 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
       s.loop_start_frame = atom_getint(argv + 2);
       s.loop_end_frame = atom_getint(argv + 3);
     }
-    post("adding %s", s.file_path);
     sampleplayer_add_sample(x->sp, s);
   }
   else if(strcmp(s->s_name, "load") == 0)
@@ -145,7 +144,7 @@ void sampleplayer_control_inlet(t_sampleplayer_tilde *x, t_symbol *s, int argc, 
 	s.loop_start_frame = -1;
 	s.loop_end_frame = -1;
       }
-      post("adding %s with note %d, looping between %d abd %d", s.file_path, s.pitch, s.loop_start_frame, s.loop_end_frame);
+      /* post("adding %s with note %d, looping between %d abd %d", s.file_path, s.pitch, s.loop_start_frame, s.loop_end_frame); */
       sampleplayer_add_sample(x->sp, s);
     }
     free(line);
